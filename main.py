@@ -1,5 +1,6 @@
 from time import sleep
 from imagesearch import *
+from regionRag import *
 import pyautogui
 import datetime
 
@@ -9,6 +10,7 @@ tempoUsandoComida1 =  datetime.timedelta(0,1800)
 tempoEmBatalha = datetime.timedelta(0)
 ultimoTempoBatalha = None
 tempoUsandoBuff_1 = datetime.timedelta(0,1)
+regionBuff = None
 
 def verificaJogoAtivo():
     ragImagPath = r'C:\Users\Neimar\PycharmProjects\ragAutomation\imagens\ragnarok.png'
@@ -18,6 +20,7 @@ def verificaJogoAtivo():
         print('Ragnarok nao ativo')
         verificaJogoAtivo()
     else:
+        posicionaVerificacaoDeBuffs()
         return
 
 def verificaVida():
@@ -73,11 +76,17 @@ def verificaBuffComida():
 
 #usando pro bless
 def verificaBuff_1():
+    global regionBuff
     buff_1Path = r'C:\Users\Neimar\PycharmProjects\ragAutomation\imagens\bless.png'
-    imgR = imagesearch(buff_1Path, 0.95)
+    #imgR = imagesearch(buff_1Path, 0.7)
+    imgR = imagesearchareaRag(buff_1Path, regionBuff, precision=0.8)
+    buff_1HalfoPath = r'C:\Users\Neimar\PycharmProjects\ragAutomation\imagens\blessHalf.png'
+    #imgR2 = imagesearch(buff_1HalfoPath, 0.7)
+    imgR2 = imagesearchareaRag(buff_1HalfoPath, regionBuff, precision=0.8)
     #se nao achou, entao tem q dar call
     if imgR is None:
-        usaBuff_1()
+        if imgR2 is None:
+            usaBuff_1()
 
 
 def verificaTempoBatalha():
@@ -105,11 +114,27 @@ def verificaTempoAtivo():
     print('Tempo decorrido: ' + str(tempoDecorrido))
 
 def verificaCallSpirits():
+    global regionBuff
     callSpiritsPath = r'C:\Users\Neimar\PycharmProjects\ragAutomation\imagens\callSpirits.png'
-    imgR = imagesearch(callSpiritsPath, 0.99)
+    imgR = imagesearch(callSpiritsPath, 0.7)
+    imgR = imagesearchareaRag(callSpiritsPath, regionBuff, precision=0.9)
     #se nao achou, entao tem q dar call
     if imgR is None:
         usaCallSpirits()
+
+def posicionaVerificacaoDeBuffs():
+    bandeiraLvlPath = r'C:\Users\Neimar\PycharmProjects\ragAutomation\imagens\bandeiraLvl.png'
+    imgR = imagesearch(bandeiraLvlPath, 0.7)
+    #se nao achou, entao tem q dar call
+    if imgR is not None:
+        global regionBuff
+        #depois de debugar umas 10 vezes cheguei nessa regiao
+        regionBuff = RegionRag(imgR[0]-30, imgR[1]+30, imgR[0] + 80, imgR[1] + 130)
+        #imagesearchareaRag(bandeiraLvlPath, regionBuff, precision=0.8)
+
+def imagesearchareaRag(image, regionRag, precision=0.8, im=None):
+    return imagesearcharea(image, regionRag.x1, regionRag.y1, regionRag.x2, regionRag.y2, precision, im)
+
 
 def mainMonk():
     global tempoInicial
@@ -124,6 +149,7 @@ def mainMonk():
         verificaBuff_1()
         verificaCallSpirits()
         sleep(3)
+
 
 def mainWiz():
     global tempoInicial
