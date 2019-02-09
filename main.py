@@ -8,6 +8,7 @@ tempoInicial = 0
 tempoUsandoComida1 =  datetime.timedelta(0,1800)
 tempoEmBatalha = datetime.timedelta(0)
 ultimoTempoBatalha = None
+tempoUsandoBuff_1 = datetime.timedelta(0,1)
 
 def verificaJogoAtivo():
     ragImagPath = r'C:\Users\Neimar\PycharmProjects\ragAutomation\imagens\ragnarok.png'
@@ -53,6 +54,15 @@ def usaComida1():
     print('Usando comida1!')
     #pyautogui.typewrite('V')
     return
+def usaBuff_1():
+    print('Usando Buff_1!')
+    pyautogui.typewrite('QQ')
+    return
+
+def usaCallSpirits():
+    print('Usando CallSpirits!')
+    pyautogui.typewrite('Z')
+    return
 
 def verificaBuffComida():
     global tempoEmBatalha
@@ -61,13 +71,21 @@ def verificaBuffComida():
         usaComida1()
         tempoUsandoComida1 = tempoUsandoComida1 + datetime.timedelta(0,1800)
 
+#usando pro bless
+def verificaBuff_1():
+    buff_1Path = r'C:\Users\Neimar\PycharmProjects\ragAutomation\imagens\bless.png'
+    imgR = imagesearch(buff_1Path, 0.95)
+    #se nao achou, entao tem q dar call
+    if imgR is None:
+        usaBuff_1()
+
 
 def verificaTempoBatalha():
     global tempoInicial
     global ultimoTempoBatalha
     global tempoEmBatalha
     emBatalhaImgPath = r'C:\Users\Neimar\PycharmProjects\ragAutomation\imagens\emBatalha.png'
-    imgR = imagesearch(emBatalhaImgPath, 0.9)
+    imgR = imagesearch(emBatalhaImgPath, 0.2)
     if imgR is not None:
         if ultimoTempoBatalha is not None:
             tempoEmBatalha = tempoEmBatalha + (datetime.datetime.now() - ultimoTempoBatalha)
@@ -86,16 +104,37 @@ def verificaTempoAtivo():
     tempoDecorrido = tempoAgora - tempoInicial
     print('Tempo decorrido: ' + str(tempoDecorrido))
 
-def main():
+def verificaCallSpirits():
+    callSpiritsPath = r'C:\Users\Neimar\PycharmProjects\ragAutomation\imagens\callSpirits.png'
+    imgR = imagesearch(callSpiritsPath, 0.99)
+    #se nao achou, entao tem q dar call
+    if imgR is None:
+        usaCallSpirits()
+
+def mainMonk():
     global tempoInicial
     tempoInicial = datetime.datetime.now()
     while True:
         verificaJogoAtivo()
-        verificaVida()
-        verificaMana()
+        #verificaVida()
+        #verificaMana()
         verificaTempoBatalha()
         verificaTempoAtivo()
-        verificaBuffComida()
+        #verificaBuffComida()
+        verificaBuff_1()
+        verificaCallSpirits()
+        sleep(3)
+
+def mainWiz():
+    global tempoInicial
+    tempoInicial = datetime.datetime.now()
+    while True:
+        verificaJogoAtivo()
+        #verificaVida()
+        #verificaMana()
+        verificaTempoBatalha()
+        verificaTempoAtivo()
+        #verificaBuffComida()
         sleep(3)
 #MAIN
-main()
+mainMonk()
