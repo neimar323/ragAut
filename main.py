@@ -6,12 +6,13 @@ import datetime
 
 
 tempoInicial = 0
-tempoUsandoComida1 =  datetime.timedelta(0,1800)
+tempoUsandoComida1 = datetime.timedelta(0,1800)
 tempoEmBatalha = datetime.timedelta(0)
 ultimoTempoBatalha = None
 tempoUsandoBuff_1 = datetime.timedelta(0,1)
 regionBuff = None
-
+tempoMapa = datetime.timedelta(0,1)
+tempoDecorrido = datetime.timedelta(0,1)
 def verificaJogoAtivo():
     ragImagPath = r'C:\Users\Neimar\PycharmProjects\ragAutomation\imagens\ragnarok.png'
     imgR = imagesearch(ragImagPath)
@@ -68,9 +69,9 @@ def usaCallSpirits():
     return
 
 def verificaBuffComida():
-    global tempoEmBatalha
+    global temp
     global tempoUsandoComida1
-    if tempoEmBatalha > tempoUsandoComida1:
+    if tempoDecorrido > tempoUsandoComida1:
         usaComida1()
         tempoUsandoComida1 = tempoUsandoComida1 + datetime.timedelta(0,1800)
 
@@ -136,6 +137,23 @@ def imagesearchareaRag(image, regionRag, precision=0.8, im=None):
     return imagesearcharea(image, regionRag.x1, regionRag.y1, regionRag.x2, regionRag.y2, precision, im)
 
 
+def irPosicaoMapa(tempoSegundos,x,y):
+    global tempoMapa
+    global tempoDecorrido
+    tempoDatetime = datetime.timedelta(0, tempoSegundos)
+
+    if tempoMapa+tempoDatetime < tempoDecorrido:
+        print('Reposicionando')
+        pyautogui.typewrite('M')
+        tempoMapa = tempoDecorrido
+        sleep(1)
+        mundo = r'C:\Users\Neimar\PycharmProjects\ragAutomation\imagens\mundo.png'
+        imgR = imagesearch(mundo, 0.7)
+        if imgR is not None:
+            if imgR[0] != -1:
+                pyautogui.click(imgR[0]+x, imgR[1]+y)
+                pyautogui.typewrite('M')
+
 def mainMonk():
     global tempoInicial
     tempoInicial = datetime.datetime.now()
@@ -145,10 +163,12 @@ def mainMonk():
         #verificaMana()
         verificaTempoBatalha()
         verificaTempoAtivo()
-        #verificaBuffComida()
+        verificaBuffComida()
         verificaBuff_1()
         verificaCallSpirits()
+        irPosicaoMapa(300, 150, -60)
         sleep(3)
+
 
 
 def mainWiz():
@@ -160,7 +180,15 @@ def mainWiz():
         #verificaMana()
         verificaTempoBatalha()
         verificaTempoAtivo()
-        #verificaBuffComida()
+        verificaBuffComida()
+        #irPosicaoMapa(600,175, -215)
+
         sleep(3)
 #MAIN
 mainMonk()
+
+
+#spots
+#irPosicaoMapa(120, 200, -215) #prontera north spot dustness 2
+#irPosicaoMapa(120, 175, -215) #prontera north spot dustness 1
+#irPosicaoMapa(50, 150, -60)  #anthell escadaZ
