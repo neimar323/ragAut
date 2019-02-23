@@ -1,10 +1,11 @@
 from time import sleep
 from imagesearch import *
 from regionRag import *
+import threading
 import pyautogui
 import datetime
 
-
+lockKeyboard = None
 tempoInicial = 0
 tempoUsandoComida1 = datetime.timedelta(0,1800)
 tempoEmBatalha = datetime.timedelta(0)
@@ -65,7 +66,7 @@ def usaBuff_1():
 
 def usaCallSpirits():
     print('Usando CallSpirits!')
-    pyautogui.typewrite('Z')
+    pyautogui.typewrite('G')
     return
 
 def verificaBuffComida():
@@ -137,15 +138,58 @@ def imagesearchareaRag(image, regionRag, precision=0.8, im=None):
     return imagesearcharea(image, regionRag.x1, regionRag.y1, regionRag.x2, regionRag.y2, precision, im)
 
 
-def irPosicaoMapa(tempoSegundos,x,y):
-    global tempoMapa
-    global tempoDecorrido
-    tempoDatetime = datetime.timedelta(0, tempoSegundos)
+def buffPorTempo(tempoSegundos, key, tentarPorSegundos):
+    while True:
+        sleep(tempoSegundos)
+        verificaJogoAtivo()
+        lock()
+        print('BUFFANDO '+key)
+        i = 0
+        intervalo = 0.2
+        while i < tentarPorSegundos:
+            pyautogui.typewrite(key)
+            sleep(intervalo)
+            i += intervalo
 
-    if tempoMapa+tempoDatetime < tempoDecorrido:
+        release()
+
+# def irPosicaoMapa(tempoSegundos,x,y):
+#     global tempoMapa
+#     global tempoDecorrido
+#     tempoDatetime = datetime.timedelta(0, tempoSegundos)
+#
+#     if tempoMapa+tempoDatetime < tempoDecorrido:
+#         print('Reposicionando')
+#         pyautogui.typewrite('M')
+#         tempoMapa = tempoDecorrido
+#         sleep(1)
+#         mundo = r'C:\Users\Neimar\PycharmProjects\ragAutomation\imagens\mundo.png'
+#         imgR = imagesearch(mundo, 0.7)
+#         if imgR is not None:
+#             if imgR[0] != -1:
+#                 pyautogui.click(imgR[0]+x, imgR[1]+y)
+#                 pyautogui.typewrite('M')
+
+def lock():
+    global lockKeyboard
+    if lockKeyboard is None:
+        lockKeyboard = threading.Lock()
+
+    lockKeyboard.acquire()
+
+def release():
+    global lockKeyboard
+    sleep(1)
+    lockKeyboard.release()
+
+def irPosicaoMapa(tempoSegundos,x,y):
+
+    while True:
+        sleep(tempoSegundos)
         print('Reposicionando')
+
+        lock()
         pyautogui.typewrite('M')
-        tempoMapa = tempoDecorrido
         sleep(1)
         mundo = r'C:\Users\Neimar\PycharmProjects\ragAutomation\imagens\mundo.png'
         imgR = imagesearch(mundo, 0.7)
@@ -153,6 +197,7 @@ def irPosicaoMapa(tempoSegundos,x,y):
             if imgR[0] != -1:
                 pyautogui.click(imgR[0]+x, imgR[1]+y)
                 pyautogui.typewrite('M')
+        release()
 
 def mainMonk():
     global tempoInicial
@@ -166,8 +211,26 @@ def mainMonk():
         verificaBuffComida()
         verificaBuff_1()
         verificaCallSpirits()
-        irPosicaoMapa(300, 150, -60)
-        sleep(3)
+        irPosicaoMapa(120, 150, -60)
+
+def mainMerchant():
+    global tempoInicial
+    tempoInicial = datetime.datetime.now()
+
+    t1 = threading.Thread(target=buffPorTempo, args=(120, 'E', 1))
+    t2 = threading.Thread(target=buffPorTempo, args=(240, 'R', 1))
+    t3 = threading.Thread(target=irPosicaoMapa, args=(170, 150, -60))
+
+    t1.start()
+    t2.start()
+    t3.start()
+    # while True:
+    #     verificaJogoAtivo()
+    #     #verificaVida()
+    #     #verificaMana()
+    #     verificaTempoBatalha()
+    #     verificaTempoAtivo()
+    #     irPosicaoMapa(120, 150, -60)
 
 
 
@@ -181,11 +244,9 @@ def mainWiz():
         verificaTempoBatalha()
         verificaTempoAtivo()
         verificaBuffComida()
-        #irPosicaoMapa(600,175, -215)
 
-        sleep(3)
 #MAIN
-mainMonk()
+mainMerchant()
 
 
 #spots
